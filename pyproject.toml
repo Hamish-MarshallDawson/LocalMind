@@ -1,0 +1,75 @@
+[project]
+name = "localmind"
+version = "0.1.0"
+description = "A private, local AI assistant: RAG over your documents, tool-using agents, voice, LaTeX, and phone access through an always-on gateway"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+dependencies = [
+    "torch>=2.4.0",
+    "torchvision>=0.19.0",
+    "transformers>=4.46.0",
+    "accelerate>=0.34.0",
+    "bitsandbytes>=0.44.0",
+    "lancedb>=0.17.0",
+    "pyarrow>=17.0.0",
+    "sentence-transformers>=3.3.0",
+    "faster-whisper>=1.1.0",
+    "pymupdf>=1.25.0",
+    "pylatexenc>=2.10",
+    "Pillow>=10.0.0",
+    "gradio>=5.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "rich>=13.0.0",
+    "click>=8.0.0",
+    "httpx>=0.27.0",
+    "tantivy>=0.22.0",
+    "nvidia-ml-py>=12.0.0",  # GPU utilisation / VRAM for the status HUD
+    "anthropic>=1.6.0",      # optional Claude models in the model picker
+    "kokoro-onnx>=0.6.0",    # spoken replies in voice mode (Kokoro-82M on the CPU)
+    "cryptography>=42.0.0",  # self-signed HTTPS certificate, so phones may use the microphone
+    "mcp>=2.0.0",            # connecting MCP servers' tools
+    "pyyaml>=6.0",           # skill frontmatter
+    # faster-whisper's engine is built for CUDA 12; a CUDA 13 PyTorch doesn't bring its cuBLAS.
+    "nvidia-cublas-cu12>=12.4; sys_platform == 'win32'",
+]
+
+[project.optional-dependencies]
+train = [
+    "unsloth>=2024.12.0",
+    "trl>=0.12.0",
+    "datasets>=3.0.0",
+    "wandb>=0.18.0",
+]
+search = [
+    # duckduckgo-search was renamed to ddgs; the old package now returns zero results.
+    "ddgs>=9.0.0",
+    "lxml>=5.0.0",
+    "trafilatura>=2.0.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.8.0",
+]
+
+[project.scripts]
+localmind = "localmind.cli:main"
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+localmind = ["ui/*.js", "extensions/bundled/*/*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]

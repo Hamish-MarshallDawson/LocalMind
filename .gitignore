@@ -1,0 +1,73 @@
+# --------------------------------------------------------------- your data, never the project's
+# Everything LocalMind stores about you: chats, the documents you index and their originals,
+# the vector store, compiled CVs, exported PDFs, TLS keys, installed skills, MCP server lists
+# and the task queue. `data/` holds nothing the project needs to run.
+data/
+gateway-data/
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Secrets and machine-specific settings
+.env
+*.env
+!*.env.example
+*.pem
+*.key
+*.crt
+*.pfx
+secrets.*
+
+# What a run produces
+logs/
+*.log
+outputs/
+exports/
+scripts/run-localmind.cmd
+
+# --------------------------------------------------------------- Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# --------------------------------------------------------------- models and big downloads
+models/
+*.gguf
+*.safetensors
+*.onnx
+*.bin
+*.pt
+*.pth
+
+# --------------------------------------------------------------- LaTeX build leftovers
+*.aux
+*.fdb_latexmk
+*.fls
+*.out
+*.synctex.gz
+*.toc
+
+# --------------------------------------------------------------- training runs
+wandb/
+runs/
+checkpoints/
+
+# --------------------------------------------------------------- editors and OS
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+.DS_Store
+desktop.ini
+/tests

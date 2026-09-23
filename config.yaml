@@ -1,0 +1,202 @@
+models:
+  chat:
+    # Settings shared by every local chat model. Which models exist is under chat_models below.
+    name: "Qwen/Qwen3-VL-8B-Instruct"
+    quantization: "4bit"
+    max_new_tokens: 8192
+    device: "cuda"
+
+  ocr:
+    name: "deepseek-ai/DeepSeek-OCR-2"
+    quantization: "4bit"
+    device: "cuda"
+
+  retrieval:
+    name: "vidore/colqwen2.5-v0.2"
+    device: "cuda"
+
+  embedding:
+    name: "BAAI/bge-base-en-v1.5"
+    device: "cpu"
+
+  whisper:
+    model_size: "medium"
+    device: "cuda"
+    compute_type: "float16"
+
+# The model picker in the chat bar. Local models run on the GPU (one at a time: switching unloads
+# the other). Claude models run in the cloud: your messages, retrieved document snippets and fetched
+# pages are sent to Anthropic, and usage is billed to the account you signed in with.
+#
+# context_window is what the context meter measures against. For local models it is a VRAM budget
+# for the KV cache, not the model's theoretical maximum.
+# thinking: none | native (one model, toggleable) | variant (separate checkpoint) |
+#           always (cannot be turned off) | budget (older Claude thinking)
+chat_models:
+  default: qwen3-vl-8b
+  # KV cache type for new chats on local models (each chat can change it from the chat bar):
+  #   bf16    exact, fastest, least context       fp8      ~2x context, near-lossless (default)
+  #   int4    ~3.5x context, some recall loss      offload  exact, kept in system RAM, much slower
+  default_kv_cache: fp8
+  options:
+    - key: qwen3-vl-8b
+      label: "Qwen3-VL 8B"
+      model: "Qwen/Qwen3-VL-8B-Instruct"
+      family: qwen
+      thinking: variant
+      thinking_model: "Qwen/Qwen3-VL-8B-Thinking"
+      vision: true
+      context_window: 32768   # fallback only: the real window is sized from free VRAM and the KV cache type
+      weights_gb: 6.0
+      kv_cache: fp8     # every layer attends to the full context, so compression pays off
+      attention_transient_kb: 16   # measured: 158 KB/token total in bf16 vs 144 KB of KV cache
+      note: "Thinking uses a separate checkpoint (~16 GB, downloaded on first use)"
+    - key: gemma-4-12b
+      label: "Gemma 4 12B"
+      model: "google/gemma-4-12B-it"
+      family: gemma4
+      thinking: native
+      vision: true
+      context_window: 32768   # fallback only: the real window is sized from free VRAM and the KV cache type
+      weights_gb: 7.3
+      kv_cache: bf16    # 40 of 48 layers use a 1K sliding window; the rest are tiny. Full context fits uncompressed
+      attention_transient_kb: 6    # measured: 124K tokens held in 10.9 GB
+    - key: claude-opus-5
+      label: "Claude Opus 5"
+      provider: anthropic
+      model: "claude-opus-5"
+      thinking: native
+      vision: true
+      context_window: 1000000
+      max_output_tokens: 64000
+      server_fallbacks: true
+    - key: claude-sonnet-5
+      label: "Claude Sonnet 5"
+      provider: anthropic
+      model: "claude-sonnet-5"
+      thinking: native
+      vision: true
+      context_window: 1000000
+      max_output_tokens: 64000
+    - key: claude-haiku-4-5
+      label: "Claude Haiku 4.5"
+      provider: anthropic
+      model: "claude-haiku-4-5"
+      thinking: budget
+      vision: true
+      context_window: 200000
+      max_output_tokens: 32000
+    - key: claude-fable-5-1
+      label: "Claude Fable 5.1"
+      provider: anthropic
+      model: "claude-fable-5-1"
+      thinking: always
+      vision: true
+      context_window: 1000000
+      max_output_tokens: 64000
+      forced_tools: false   # this model rejects forced tool_choice; forced tools are pre-run instead
+      server_fallbacks: true
+      note: "Requires usage credits; always thinks"
+
+agent:
+  # How many tool-calling rounds before the model is forced to commit to an answer.
+  # A runaway-loop guard. Free on local models; on Claude every round is a billed request.
+  max_tool_rounds: 20
+  # Warn once per chat when this share of the context window is used.
+  context_warning_threshold: 0.85
+  show_thinking: true
+  temperature: 0.6
+  top_p: 0.95
+  top_k: 20
+  # Push back once if the model answers a turn without calling any tool.
+  require_evidence: true
+  # Transcript keeps past tool results so follow-ups stay grounded; these bound the context cost.
+  transcript_tool_chars: 4000
+  keep_full_tool_results: 12
+
+rag:
+  db_path: "./data/lancedb"
+  chunk_size: 512
+  chunk_overlap: 64
+  top_k: 5
+  hybrid_search: true
+
+ingest:
+  supported_extensions:
+    - ".pdf"
+    - ".png"
+    - ".jpg"
+    - ".jpeg"
+    - ".webp"
+    - ".txt"
+    - ".md"
+    - ".tex"
+    - ".mp3"
+    - ".wav"
+    - ".flac"
+    - ".m4a"
+    - ".ogg"
+  max_file_size_mb: 500
+  docs_dir: "./data/documents"
+
+tools:
+  web_search:
+    enabled: true
+    max_results: 5
+    region: "uk-en"      # wt-wt for worldwide
+    max_retries: 3
+    cache_ttl_seconds: 600
+  web_fetch:
+    enabled: true
+    timeout_seconds: 20
+    max_chars: 12000
+  code_execution:
+    enabled: true
+    timeout_seconds: 30
+  file_operations:
+    enabled: true
+    allowed_dirs:
+      - "./data"
+
+storage:
+  conversations_db: "./data/conversations.db"
+
+server:
+  # 127.0.0.1 = this PC only. Use 0.0.0.0 (or `localmind serve --lan`) to open it to phones and
+  # laptops on your network. LAN access requires a password, set via the LOCALMIND_PASSWORD
+  # environment variable - the assistant can run Python and read files here.
+  host: "127.0.0.1"
+  port: 7860
+  username: "localmind"
+  # Browsers only allow the microphone on https:// or localhost, so talking to LocalMind from a
+  # phone needs HTTPS. "auto" switches it on for LAN mode with a self-signed certificate made on
+  # first run; each device asks you to accept it once.
+  https: "auto"
+
+voice:
+  # Listening uses faster-whisper (models.whisper above); this is the language you speak.
+  language: "en"
+  # Replies are spoken by Kokoro-82M on the CPU, leaving VRAM to the chat model.
+  # Voices: af_heart, af_bella, am_michael, bf_emma, bf_isabella, bm_george, bm_lewis, ...
+  # (a = American, b = British English)
+  tts_voice: "af_heart"
+  tts_speed: 1.0
+
+gateway:
+  # The always-on gateway app on your tailnet. LocalMind reports its status and recent chats
+  # there, including a final report just before it shuts down. Set its address and the shared
+  # secret as environment variables, so neither ends up in this file or in version control:
+  #   $env:LOCALMIND_GATEWAY_URL   = "https://your-server.your-tailnet.ts.net"
+  #   $env:LOCALMIND_GATEWAY_TOKEN = "the token the gateway installer printed"
+  url: ""
+  report_interval_seconds: 60
+  history_chats: 40
+
+power:
+  # With `serve --auto-shutdown` (what the start-at-boot task uses), shut the PC down after this
+  # many minutes without a message or action. Keyboard/mouse use on the PC and other programs
+  # using the GPU (games, training) count as activity. 0 turns it off.
+  idle_shutdown_minutes: 10
+  grace_seconds: 60
+  respect_local_input: true
+  busy_gpu_percent: 30

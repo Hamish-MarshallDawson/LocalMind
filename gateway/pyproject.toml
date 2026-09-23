@@ -1,0 +1,23 @@
+[project]
+name = "localmind-gateway"
+version = "0.1.0"
+description = "Always-on front end for LocalMind: wakes the PC, queues messages, keeps the last status."
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.110",
+    "uvicorn>=0.27",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+localmind-gateway = "localmind_gateway.__main__:main"
+
+[build-system]
+requires = ["setuptools>=75.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+localmind_gateway = ["static/*"]
