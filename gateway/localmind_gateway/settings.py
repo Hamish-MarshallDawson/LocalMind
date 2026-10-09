@@ -25,6 +25,10 @@ class Settings:
     token: str = ""
     # Tailscale logins allowed to use the gateway. `tailscale serve` tells us who is asking.
     allowed_users: list[str] = field(default_factory=list)
+    # Tailscale addresses (100.x) allowed to connect straight to this port, skipping
+    # `tailscale serve` and therefore DNS. Tailscale authenticates the source address, so this is
+    # as trustworthy as the identity header, but it names devices rather than people.
+    allowed_ips: list[str] = field(default_factory=list)
     data_dir: Path = Path("./gateway-data")
     host: str = "127.0.0.1"
     port: int = 8765
@@ -47,6 +51,7 @@ class Settings:
             pc_tailscale_name=env.get("LMG_PC_TAILSCALE_NAME", ""),
             token=env.get("LOCALMIND_GATEWAY_TOKEN", "").strip(),
             allowed_users=[u.lower() for u in _list(env.get("LMG_ALLOWED_USERS", ""))],
+            allowed_ips=_list(env.get("LMG_ALLOWED_IPS", "")),
             data_dir=Path(env.get("LMG_DATA_DIR", str(defaults.data_dir))),
             host=env.get("LMG_HOST", defaults.host),
             port=int(env.get("LMG_PORT", defaults.port)),

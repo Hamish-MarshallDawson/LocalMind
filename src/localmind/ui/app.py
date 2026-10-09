@@ -38,8 +38,9 @@ STARTERS = [
     {"text": "Explain QLoRA to me like I'm a product manager"},
 ]
 HERO = (
-    "<div class='lm-hero'><div class='lm-hero-mark'>LM</div>"
-    "<h2>What are we working on?</h2>"
+    "<div class='lm-hero'>"
+    "<div class='lm-hero-tag'>LocalMind · runs on this machine</div>"
+    "<h2 class='lm-mega'>What are we <em>working</em> on?</h2>"
     "<p>Turn on <b>Web search</b> or <b>Knowledge base</b> below to make sure they're used.</p></div>"
 )
 VIEWS = ("chat", "kb", "search", "tasks", "tools")
@@ -177,11 +178,18 @@ def create_ui(
     def topbar(title: str, spec: ModelSpec, status: str | None = None) -> str:
         # Title, model and live status share one component: separate Gradio blocks in a row
         # collapse to zero width and swallow the title.
-        pill = f"<div class='lm-status'><span class='lm-dot'></span>{html.escape(status)}…</div>" if status else ""
+        # A ruled row of cells, as on the portfolio: label, chat, model, live status.
+        pill = (
+            f"<span class='lm-cell lm-cell-push'><span class='lm-status'><span class='lm-dot'></span>"
+            f"{html.escape(status)}</span></span>"
+        ) if status else ""
         where = "<span class='lm-badge lm-badge-cloud'>cloud</span>" if spec.is_cloud else "<span class='lm-badge'>local</span>"
         return (
-            f"<div class='lm-topbar'><div class='lm-title'>{html.escape(title)}</div>"
-            f"<div class='lm-model'>{html.escape(spec.label)} {where}</div><div class='lm-spacer'></div>{pill}</div>"
+            "<div class='lm-topbar'><div class='lm-cells'>"
+            "<span class='lm-cell lm-cell-fill'>Chat</span>"
+            f"<span class='lm-cell lm-cell-title'><span class='lm-title'>{html.escape(title)}</span></span>"
+            f"<span class='lm-cell lm-model'>{html.escape(spec.label)} {where}</span>"
+            f"{pill}</div></div>"
         )
 
     def footnote(spec: ModelSpec, kv: str | None = None) -> str:
@@ -213,11 +221,11 @@ def create_ui(
             level = " lm-hud-hot" if pct >= 0.92 else " lm-hud-warm" if pct >= 0.8 else ""
             pills.append(
                 f"<span class='lm-hud-pill{level}' title='{html.escape(gpu.name)} - whole GPU, including other apps'>"
-                f"<b>VRAM</b> {gpu.used_gb:.1f} / {gpu.total_gb:.0f} GB"
+                f"<b>VRAM</b> <span class='lm-num'>{gpu.used_gb:.1f}/{gpu.total_gb:.0f}</span> GB"
                 f"<i class='lm-meter'><i style='width:{pct * 100:.0f}%'></i></i></span>"
             )
             if gpu.util_percent is not None:
-                pills.append(f"<span class='lm-hud-pill'><b>GPU</b> {gpu.util_percent}%</span>")
+                pills.append(f"<span class='lm-hud-pill'><b>GPU</b> <span class='lm-num'>{gpu.util_percent}%</span></span>")
         else:
             pills.append("<span class='lm-hud-pill'><b>GPU</b> n/a</span>")
 
@@ -228,8 +236,9 @@ def create_ui(
             approx = "≈" if not ctx.get("exact", True) else ""
             pills.append(
                 f"<span class='lm-hud-pill{level}' title='{html.escape(spec.label)} context window'>"
-                f"<b>Context</b> {approx}{_short(ctx['tokens'])} / {_short(ctx['window'])} · {_short(left)} left"
-                f"<i class='lm-meter'><i style='width:{min(100, used * 100):.0f}%'></i></i></span>"
+                f"<b>Context</b> <span class='lm-num'>{approx}{_short(ctx['tokens'])}/{_short(ctx['window'])}</span>"
+                f"<i class='lm-meter'><i style='width:{min(100, used * 100):.0f}%'></i></i>"
+                f"<b>left</b> <span class='lm-num'>{_short(left)}</span></span>"
             )
         else:
             pills.append("<span class='lm-hud-pill'><b>Context</b> —</span>")

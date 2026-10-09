@@ -344,11 +344,23 @@ def create_app(settings: Settings | None = None, *, gateway: Gateway | None = No
     app.state.gateway = gateway
 
     def user_of(request: Request) -> str | None:
-        """Who's asking, from the identity headers `tailscale serve` adds to tailnet requests."""
+        """Who's asking: the identity `tailscale serve` attaches, or a device allowed by address.
+
+        Reaching the port directly (http://<tailscale-ip>:8765) has no identity header, but the
+        source address is one Tailscale vouches for, so a device listed in LMG_ALLOWED_IPS gets in.
+        That keeps the gateway usable when a phone can't resolve tailnet names.
+        """
         login = request.headers.get("tailscale-user-login", "").strip().lower()
-        if settings.allowed_users:
-            return login if login in settings.allowed_users else None
-        return login or "local"
+        if login:
+            if settings.allowed_users:
+                return login if login in settings.allowed_users else None
+            return login
+        client = request.client.host if request.client else ""
+        if client in settings.allowed_ips:
+            return f"device {client}"
+        if settings.allowed_users or settings.allowed_ips:
+            return None
+        return "local"
 
     def pc_authorised(request: Request) -> bool:
         given = request.headers.get("authorization", "").removeprefix("Bearer ").strip()

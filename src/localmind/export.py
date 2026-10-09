@@ -27,25 +27,25 @@ _EMOJI = re.compile(
 PAGE = fitz.paper_rect("a4")
 MARGIN = (54, 58, 54, 64)  # left, top, right, bottom in points
 
-# Palette (matches the app): Deep Space Blue, Strong Cyan, Ash Grey, Parchment, Soft Apricot.
+# Palette (matches the app): paper, ink, signal #1F1FFF. On paper, signal text clears 7.8:1.
 CSS = """
 * { font-family: body; }
-body { font-size: 10.5pt; line-height: 1.45; color: #12263A; }
-h1.doc-title { font-size: 18pt; margin: 0 0 2pt 0; color: #12263A; }
-p.meta { font-size: 8.5pt; color: #4F6272; margin: 0 0 14pt 0; }
-div.user { background-color: #F4D1AE; padding: 7pt 10pt; margin: 10pt 0 6pt 60pt; border-radius: 6pt; }
+body { font-size: 10.5pt; line-height: 1.45; color: #000000; }
+h1.doc-title { font-size: 20pt; margin: 0 0 2pt 0; color: #000000; }
+p.meta { font-size: 8pt; color: #4A4A4A; margin: 0 0 14pt 0; }
+div.user { background-color: #000000; color: #FFFFFF; padding: 7pt 10pt; margin: 10pt 0 6pt 60pt; }
 div.user p { margin: 0 0 4pt 0; }
-div.who { font-size: 7.5pt; font-weight: bold; color: #4F6272; margin: 8pt 0 2pt 0; text-transform: uppercase; }
+div.who { font-size: 7.5pt; font-weight: bold; color: #4A4A4A; margin: 8pt 0 2pt 0; text-transform: uppercase; }
 div.assistant { margin: 0 0 6pt 0; }
 div.assistant p { margin: 0 0 6pt 0; }
-div.tool { font-size: 8.5pt; color: #026A6E; margin: 3pt 0; padding: 2pt 0 2pt 6pt; border-left: 2pt solid #06BCC1; }
-div.notice { font-size: 8.5pt; color: #4F6272; font-style: italic; margin: 3pt 0; }
-code { font-family: mono; font-size: 9pt; background-color: #EFE6E1; }
-pre { font-family: mono; font-size: 8.5pt; background-color: #F6F0EC; padding: 6pt; }
+div.tool { font-size: 8.5pt; color: #1F1FFF; margin: 3pt 0; padding: 2pt 0 2pt 6pt; border-left: 3pt solid #1F1FFF; }
+div.notice { font-size: 8.5pt; color: #4A4A4A; font-style: italic; margin: 3pt 0; }
+code { font-family: mono; font-size: 9pt; background-color: #F2F2F2; }
+pre { font-family: mono; font-size: 8.5pt; background-color: #F2F2F2; padding: 6pt; }
 table { border-collapse: collapse; margin: 4pt 0 8pt 0; }
-th, td { border: 0.6pt solid #C5D8D1; padding: 3pt 5pt; font-size: 9pt; }
-th { background-color: #EFE6E1; font-weight: bold; }
-a { color: #026A6E; }
+th, td { border: 0.75pt solid #000000; padding: 3pt 5pt; font-size: 9pt; }
+th { background-color: #F2F2F2; font-weight: bold; }
+a { color: #1F1FFF; }
 ul, ol { margin: 0 0 6pt 0; }
 b, strong, th { font-weight: bold; }
 """

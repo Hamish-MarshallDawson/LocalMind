@@ -1,5 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#12263A"/>
-  <rect x="96" y="96" width="320" height="320" rx="88" fill="#06BCC1"/>
-  <text x="256" y="300" text-anchor="middle" font-family="Inter, Segoe UI, Arial, sans-serif" font-size="150" font-weight="800" fill="#12263A">LM</text>
+  <!-- Signal plate, paper monogram, square corners: the same mark as the sidebar.
+       The letters are stroked paths, not text, so they render identically everywhere,
+       and they sit inside the central 80% a maskable icon may be cropped to. -->
+  <rect width="512" height="512" fill="#1F1FFF"/>
+  <path d="M152 188v136h92M276 324V188l54 74 54-74v136" fill="none" stroke="#FFFFFF"
+        stroke-width="34" stroke-linecap="butt" stroke-linejoin="miter"/>
 </svg>

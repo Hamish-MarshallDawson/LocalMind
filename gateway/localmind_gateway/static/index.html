@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
-  <meta name="theme-color" content="#F4EDEA" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0F2031" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="description" content="LocalMind, reachable any time: wakes the PC when you send a message.">
@@ -12,6 +12,15 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icon.svg">
+  <!-- Archivo's width axis carries the display type, JetBrains Mono the labels and
+       Silkscreen the numerals. Offline (the gateway's whole point) these fall back to
+       the system stack and the layout is unchanged. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Loaded without blocking the first paint: the gateway is often reached with no route
+       to the internet, and a stylesheet Google can't answer would hold the page up. -->
+  <link rel="stylesheet" media="print" onload="this.media='all'"
+        href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500;700&family=Silkscreen:wght@400;700&display=swap">
   <link rel="stylesheet" href="app.css">
 </head>
 <body>

@@ -1,7 +1,7 @@
 // Keeps the page itself available when this device can't reach the gateway (off the tailnet, on
 // a plane): it opens from cache and shows the chats and PC status saved on the device. The API is
 // never cached, so nothing live is ever stale.
-const SHELL = 'lm-gateway-shell-v2';
+const SHELL = 'lm-gateway-shell-v3';
 const FILES = ['./', 'app.css', 'app.js', 'icon.svg', 'manifest.webmanifest'];
 
 self.addEventListener('install', (event) => {
